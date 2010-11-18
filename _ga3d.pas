@@ -298,44 +298,120 @@ end;
 
 function TGA3Dbv.add( opd: TGA3DObject ): TGA3DObject;
 begin
-
+  if opd is tga3ds then
+    result := tga3dmv.Create( opd.Elmt[0], 0, 0, 0, fvalue[0], fvalue[1], fvalue[2], 0 )
+  else
+    if opd is tga3dv then
+      result := tga3dmv.Create( 0, opd.Elmt[1], opd.Elmt[2], opd.Elmt[3], fvalue[0], fvalue[1], fvalue[2], 0 )
+    else
+      if opd is tga3dbv then
+        result := tga3dbv.Create( fvalue[0] + opd.Elmt[4], fvalue[1] + opd.Elmt[5], fvalue[2] + opd.Elmt[6] )
+      else
+        if opd is tga3dtv then
+          result := tga3dmv.Create( 0, 0, 0, 0, fvalue[0], fvalue[1], fvalue[2], opd.Elmt[7] )
+        else
+          result := tga3dmv.Create( opd.Elmt[0], opd.Elmt[1], opd.Elmt[2], opd.Elmt[3], fvalue[0] + opd.Elmt[4], fvalue[1] + opd.Elmt[5], fvalue[2] + opd.Elmt[6], opd.Elmt[7] );
 end;
 
 constructor TGA3Dbv.Create( e12, e23, e31: real );
 begin
-
+  fvalue[0] := e12;
+  fvalue[1] := e23;
+  fvalue[2] := e31;
 end;
 
 function TGA3Dbv.GetElmt( idx: integer ): real;
 begin
-
+  if idx in [4..6] then
+    result := fvalue[idx - 4]
+  else
+    result := 0;
 end;
 
 function TGA3Dbv.mag: real;
 begin
-
+  result := sqrt( fvalue[0] * fvalue[0] + fvalue[1] * fvalue[1] + fvalue[2] * fvalue[2] );
 end;
 
 function TGA3Dbv.mul( opd: TGA3DObject ): TGA3DObject;
 begin
+  if opd is tga3ds then
+    result := tga3dbv.Create( fvalue[0] * opd.Elmt[0], fvalue[1] * opd.Elmt[0], fvalue[2] * opd.Elmt[0] )
+  else
+    if opd is tga3dv then
+      result := tga3dmv.Create( 0,
+        fvalue[0] * opd.Elmt[2] - fvalue[2] * opd.Elmt[3],
+        fvalue[1] * opd.Elmt[3] - fvalue[0] * opd.Elmt[1],
+        fvalue[2] * opd.Elmt[1] - fvalue[1] * opd.Elmt[2],
+        0, 0, 0,
+        fvalue[0] * opd.Elmt[3] + fvalue[1] * opd.Elmt[1] + fvalue[2] * opd.Elmt[2]
+        )
+    else
+      if opd is tga3dbv then
+        result := tga3dmv.Create(
+          -fvalue[0] * opd.Elmt[4] - fvalue[1] * opd.Elmt[5] - fvalue[2] * opd.Elmt[6],
+          0, 0, 0,
+          fvalue[2] * opd.Elmt[5] - fvalue[1] * opd.Elmt[6],
+          fvalue[0] * opd.Elmt[6] - fvalue[2] * opd.Elmt[4],
+          fvalue[1] * opd.Elmt[4] - fvalue[0] * opd.Elmt[5],
+          0
+          )
+      else
+        if opd is tga3dtv then
+          result := tga3dv.Create( -fvalue[1] * opd.Elmt[7], -fvalue[2] * opd.Elmt[7], -fvalue[0] * opd.Elmt[7] )
+        else
+          result := tga3dmv.Create(
+            -fvalue[0] * opd.Elmt[4] - fvalue[1] * opd.Elmt[5] - fvalue[2] * opd.Elmt[6],
+            
+            fvalue[0] * opd.Elmt[2] - fvalue[2] * opd.Elmt[3] - fvalue[1] * opd.Elmt[7],
+            fvalue[1] * opd.Elmt[3] - fvalue[0] * opd.Elmt[1] - fvalue[2] * opd.Elmt[7],
+            fvalue[2] * opd.Elmt[1] - fvalue[1] * opd.Elmt[2] - fvalue[0] * opd.Elmt[7],
 
+            fvalue[2] * opd.Elmt[5] - fvalue[1] * opd.Elmt[6] + fvalue[0] * opd.Elmt[0],
+            fvalue[0] * opd.Elmt[6] - fvalue[2] * opd.Elmt[4] + fvalue[1] * opd.Elmt[0],
+            fvalue[1] * opd.Elmt[4] - fvalue[0] * opd.Elmt[5] + fvalue[2] * opd.Elmt[0],
+
+            fvalue[0] * opd.Elmt[3] + fvalue[1] * opd.Elmt[1] + fvalue[2] * opd.Elmt[2]            
+            );
 end;
 
 procedure TGA3Dbv.nor;
+var
+  len, inv          : real;
 begin
   inherited;
-
+  len := mag;
+  if len > 1E-3 then begin
+    inv := 1.0 / len;
+    fvalue[0] := fvalue[0] * inv;
+    fvalue[1] := fvalue[1] * inv;
+    fvalue[2] := fvalue[2] * inv;
+  end;
 end;
 
 procedure TGA3Dbv.rev;
 begin
   inherited;
-
+  fvalue[0] := -fvalue[0];
+  fvalue[1] := -fvalue[1];
+  fvalue[2] := -fvalue[2];
 end;
 
 function TGA3Dbv.sub( opd: TGA3DObject ): TGA3DObject;
 begin
-
+  if opd is tga3ds then
+    result := tga3dmv.Create( -opd.Elmt[0], 0, 0, 0, fvalue[0], fvalue[1], fvalue[2], 0 )
+  else
+    if opd is tga3dv then
+      result := tga3dmv.Create( 0, -opd.Elmt[1], -opd.Elmt[2], -opd.Elmt[3], fvalue[0], fvalue[1], fvalue[2], 0 )
+    else
+      if opd is tga3dbv then
+        result := tga3dbv.Create( fvalue[0] - opd.Elmt[4], fvalue[1] - opd.Elmt[5], fvalue[2] - opd.Elmt[6] )
+      else
+        if opd is tga3dtv then
+          result := tga3dmv.Create( 0, 0, 0, 0, fvalue[0], fvalue[1], fvalue[2], -opd.Elmt[7] )
+        else
+          result := tga3dmv.Create( -opd.Elmt[0], -opd.Elmt[1], -opd.Elmt[2], -opd.Elmt[3], fvalue[0] - opd.Elmt[4], fvalue[1] - opd.Elmt[5], fvalue[2] - opd.Elmt[6], -opd.Elmt[7] );
 end;
 
 { TGA3Dtv }
