@@ -1,0 +1,5 @@
+geometric algebra library for 2d and 3d implemented in delphi
+
+basis used : 
+* e1, e2, e12 (2d)
+* e1, e2, e3, e12, e23, e31, e123 (3d)
