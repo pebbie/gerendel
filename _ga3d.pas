@@ -13,6 +13,7 @@ type
     function mag: real; virtual; abstract; //magnitude
     procedure nor; virtual; abstract; //normalize
     procedure rev; virtual; abstract; //reverse
+    procedure neg; virtual; abstract; //negation
     property Elmt[idx: integer]: real read GetElmt;
   end;
 
@@ -28,6 +29,7 @@ type
     function mag: real; override;
     procedure nor; override;
     procedure rev; override;
+    procedure neg; override;
   end;
 
   TGA3Dv = class( TGA3DObject ) //homogenous vector
@@ -42,6 +44,7 @@ type
     function mag: real; override;
     procedure nor; override;
     procedure rev; override;
+    procedure neg; override;
   end;
 
   TGA3Dbv = class( TGA3DObject ) //homogenous vector
@@ -56,6 +59,7 @@ type
     function mag: real; override;
     procedure nor; override;
     procedure rev; override;
+    procedure neg; override;
   end;
 
   TGA3Dtv = class( TGA3DObject ) //pseudoscalar (trivector)
@@ -70,6 +74,7 @@ type
     function mag: real; override;
     procedure nor; override;
     procedure rev; override;
+    procedure neg; override;
   end;
 
   TGA3Dmv = class( TGA3DObject ) //generic multivector
@@ -84,7 +89,11 @@ type
     function mag: real; override;
     procedure nor; override;
     procedure rev; override;
+    procedure neg; override;
   end;
+
+var
+  ga3dI             : tga3dtv;
 
 implementation
 
@@ -151,6 +160,12 @@ begin
             fvalue * opd.Elmt[6],
             fvalue * opd.Elmt[7]
             );
+end;
+
+procedure TGA3Ds.neg;
+begin
+  inherited;
+  fvalue := -fvalue;
 end;
 
 procedure TGA3Ds.nor;
@@ -256,6 +271,14 @@ begin
             fvalue[2] * opd.Elmt[7], fvalue[0] * opd.Elmt[7], fvalue[1] * opd.Elmt[7],
             fvalue[0] * opd.Elmt[5] + fvalue[1] * opd.Elmt[6] + fvalue[2] * opd.Elmt[4]
             );
+end;
+
+procedure TGA3Dv.neg;
+begin
+  inherited;
+  fvalue[0] := -fvalue[0];
+  fvalue[1] := -fvalue[1];
+  fvalue[2] := -fvalue[2];
 end;
 
 procedure TGA3Dv.nor;
@@ -375,6 +398,14 @@ begin
             );
 end;
 
+procedure TGA3Dbv.neg;
+begin
+  inherited;
+  fvalue[0] := -fvalue[0];
+  fvalue[1] := -fvalue[1];
+  fvalue[2] := -fvalue[2];
+end;
+
 procedure TGA3Dbv.nor;
 var
   len, inv          : real;
@@ -480,6 +511,12 @@ begin
             fvalue * opd.Elmt[3], fvalue * opd.Elmt[1], fvalue * opd.Elmt[2],
             fvalue * opd.Elmt[0]
             );
+end;
+
+procedure TGA3Dtv.neg;
+begin
+  inherited;
+  fvalue := -fvalue;
 end;
 
 procedure TGA3Dtv.nor;
@@ -604,12 +641,25 @@ begin
     - fvalue[4] * opd.Elmt[5] + fvalue[5] * opd.Elmt[4] + fvalue[6] * opd.Elmt[0]
     + fvalue[7] * opd.Elmt[2],
 
-    //pseudoscalar    
+    //pseudoscalar
     fvalue[0] * opd.Elmt[7]
     + fvalue[1] * opd.Elmt[5] + fvalue[2] * opd.Elmt[6] + fvalue[3] * opd.Elmt[4]
     + fvalue[4] * opd.Elmt[3] + fvalue[5] * opd.Elmt[1] + fvalue[6] * opd.Elmt[2]
     + fvalue[7] * opd.Elmt[0]
     );
+end;
+
+procedure TGA3Dmv.neg;
+begin
+  inherited;
+  fvalue[0] := -fvalue[0];
+  fvalue[1] := -fvalue[1];
+  fvalue[2] := -fvalue[2];
+  fvalue[3] := -fvalue[3];
+  fvalue[4] := -fvalue[4];
+  fvalue[5] := -fvalue[5];
+  fvalue[6] := -fvalue[6];
+  fvalue[7] := -fvalue[7];
 end;
 
 procedure TGA3Dmv.nor;
@@ -657,5 +707,9 @@ begin
     );
 end;
 
+initialization
+  ga3dI := tga3dtv.Create( 1 );
+finalization
+  ga3dI.Free;
 end.
 

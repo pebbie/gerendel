@@ -12,6 +12,7 @@ type
     function mul( opd: TGA2DObject ): TGA2DObject; virtual; abstract;
     function mag: real; virtual; abstract;  //magnitude
     procedure nor; virtual; abstract; //normalize
+    procedure neg; virtual; abstract;
     property Elmt[idx: integer]: real read GetElmt;
   end;
 
@@ -26,6 +27,7 @@ type
     function mul( opd: TGA2DObject ): TGA2DObject; override;
     function mag: real; override;
     procedure nor; override;
+    procedure neg; override;
   end;
 
   TGA2Dv = class( TGA2DObject ) //homogenous vector
@@ -39,6 +41,7 @@ type
     function mul( opd: TGA2DObject ): TGA2DObject; override;
     function mag: real; override;
     procedure nor; override;
+    procedure neg; override;
   end;
 
   TGA2Dbv = class( TGA2DObject ) //homogeneous bivector
@@ -52,6 +55,7 @@ type
     function mul( opd: TGA2DObject ): TGA2DObject; override;
     function mag: real; override;
     procedure nor; override;
+    procedure neg; override;
   end;
 
   TGA2Dmv = class( TGA2DObject ) //generic multivector
@@ -65,6 +69,7 @@ type
     function mul( opd: TGA2DObject ): TGA2DObject; override;
     function mag: real; override;
     procedure nor; override;
+    procedure neg; override;
   end;
 
   TGA2Dc = class( TGA2DObject ) //complex number
@@ -78,6 +83,7 @@ type
     function mul( opd: TGA2DObject ): TGA2DObject; override;
     function mag: real; override;
     procedure nor; override;
+    procedure neg; override;
   end;
 
 implementation
@@ -128,6 +134,12 @@ begin
           result := tga2dc.Create( FValue * opd.Elmt[0], fvalue * opd.Elmt[3] )
         else
           result := tga2dmv.Create( FValue * opd.Elmt[0], FValue * opd.Elmt[1], FValue * opd.Elmt[2], FValue * opd.Elmt[3] );
+end;
+
+procedure TGA2Ds.neg;
+begin
+  inherited;
+  fvalue := -fvalue;
 end;
 
 procedure TGA2Ds.nor;
@@ -199,6 +211,13 @@ begin
             ( FValue[0] * opd.Elmt[2] - FValue[1] * opd.Elmt[1] ) );
 end;
 
+procedure TGA2Dv.neg;
+begin
+  inherited;
+  fvalue[0] := -fvalue[0];
+  fvalue[1] := -fvalue[1];
+end;
+
 procedure TGA2Dv.nor;
 var
   len               : real;
@@ -264,6 +283,12 @@ begin
           result := tga2dmv.Create( -fvalue * opd.Elmt[3], fvalue * opd.Elmt[2], -fvalue * opd.Elmt[1], fvalue * opd.Elmt[0] );
 end;
 
+procedure TGA2Dbv.neg;
+begin
+  inherited;
+  fvalue := -fvalue;
+end;
+
 procedure TGA2Dbv.nor;
 begin
   inherited;
@@ -316,6 +341,15 @@ begin
     ( fvalue[0] * opd.Elmt[2] + fvalue[1] * opd.Elmt[3] + fvalue[2] * opd.Elmt[0] - fvalue[3] * opd.Elmt[1] ),
     ( fvalue[0] * opd.Elmt[3] + fvalue[1] * opd.Elmt[2] - fvalue[2] * opd.Elmt[1] + fvalue[3] * opd.Elmt[0] )
     );
+end;
+
+procedure TGA2Dmv.neg;
+begin
+  inherited;
+  fvalue[0] := -fvalue[0];
+  fvalue[1] := -fvalue[1];
+  fvalue[2] := -fvalue[2];
+  fvalue[3] := -fvalue[3];
 end;
 
 procedure TGA2Dmv.nor;
@@ -392,6 +426,13 @@ begin
             ( fvalue[0] * opd.Elmt[2] - fvalue[1] * opd.Elmt[1] ),
             ( fvalue[0] * opd.Elmt[3] + fvalue[1] * opd.Elmt[0] )
             );
+end;
+
+procedure TGA2Dc.neg;
+begin
+  inherited;
+  fvalue[0] := -fvalue[0];
+  fvalue[1] := -fvalue[1];
 end;
 
 procedure TGA2Dc.nor;
